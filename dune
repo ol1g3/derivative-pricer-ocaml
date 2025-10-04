@@ -2,4 +2,4 @@
  (name pricer)
  (libraries owl base stdio unix)
  (modules pricer model)
- (flags (:standard -w -32)))
+ (flags (:standard -w -32 -w -37)))
