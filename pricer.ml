@@ -11,7 +11,7 @@ module type Model = sig
   val r : float
   val sigma : float
   val generate_path : float -> int -> float array
-  val run : int -> int -> float -> float -> analytics_result
+  val run : int -> int -> float -> analytics_result
 end
 
 type option_type = Call | Put

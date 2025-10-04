@@ -1,10 +1,11 @@
 open Pricer
+open Base
 
 module type Model = sig 
   val r : float
   val sigma: float
   val generate_path : float -> int -> float array
-  val run : int -> int -> float -> float -> analytics_result
+  val run : int -> int -> float -> analytics_result
 end
 
 module BlackScholes : Model = struct
@@ -23,7 +24,7 @@ module BlackScholes : Model = struct
     done;
     path
 
-  let run n_simulations n_steps initial_price initial_volatility =
+  let run n_simulations n_steps initial_price =
     if n_simulations <= 0 || n_steps <= 0 then
       failwith "Invalid parameters: all must be positive"
     else
@@ -44,10 +45,16 @@ end
 
 let () = 
   Random.init 42;
+  let n_simulations = 1000 in
+  let n_steps = 100 in
+  let starting_price = 100.0 in
+  let maturity = 1.0 in
+  let eps = 1.0 in
+
   let module M = BlackScholes in
-  let contract = VanillaContract (100.0, Call) in
-  let analytics = Pricer.price_contract (module M) contract 100.0 100000 100 1.0 in
-  let delta = Pricer.delta (module M) contract 100.0 10000 100 1.0 0.1 in
-  Stdio.printf "Monte Carlo Price: %f ± %f (95%% CI: [%f, %f])\n" analytics.price (analytics.std_dev /. Float.sqrt (Float.of_int 10000)) (fst analytics.conf_interval) (snd analytics.conf_interval);
+  let contract = AmericanContract (starting_price, Call) in
+  let analytics = Pricer.price_contract (module M) contract starting_price n_simulations n_steps maturity in
+  let delta = Pricer.delta (module M) contract starting_price n_simulations n_steps maturity eps in
+  Stdio.printf "Monte Carlo Price: %f ± %f (95%% CI: [%f, %f])\n" analytics.price (analytics.std_dev /. Float.sqrt (Float.of_int n_simulations)) (fst analytics.conf_interval) (snd analytics.conf_interval);
   Stdio.printf "Delta: %f\n" delta;
   Stdio.printf "Time Taken: %f seconds\n" analytics.time_taken;

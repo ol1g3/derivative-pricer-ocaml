@@ -13,6 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 USER opam
 COPY --chown=opam:opam . .
 
-RUN opam install -y owl && opam exec -- dune build
+RUN opam install -y owl stdio base && opam exec -- dune build
 
-CMD ["opam","exec","--","dune","exec","./deriv_pricer.exe"]
+CMD ["./_build/default/model.exe"]

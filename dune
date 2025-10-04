@@ -1,5 +1,5 @@
 (executable
- (name pricer)
+ (name model)
  (libraries owl base stdio unix)
  (modules pricer model)
  (flags (:standard -w -32 -w -37)))
