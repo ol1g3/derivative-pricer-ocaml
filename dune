@@ -1,0 +1,3 @@
+(executable
+ (name pricer)
+ (libraries owl base stdio))
