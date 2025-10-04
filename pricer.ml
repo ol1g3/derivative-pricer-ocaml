@@ -37,11 +37,13 @@ module Pricer = struct
         let avg_price = Array.fold path ~init:0.0 ~f:(+.) /. Float.of_int (Array.length path) in
         Float.max 0. (strike -. avg_price)
     | AmericanContract (strike, Call) ->
-        let max_price = Array.fold path ~init:Float.neg_infinity ~f:Float.max in
-        Float.max 0. (max_price -. strike)
+        Array.fold path ~init:0.0 ~f:(fun max_payoff spot_price ->
+          Float.max max_payoff (Float.max 0.0 (spot_price -. strike))
+        )
     | AmericanContract (strike, Put) ->
-        let min_price = Array.fold path ~init:Float.infinity ~f:Float.min in
-        Float.max 0. (strike -. min_price)
+        Array.fold path ~init:0.0 ~f:(fun max_payoff spot_price ->
+          Float.max max_payoff (Float.max 0.0 (strike -. spot_price))
+        )
 
   let price_contract (module M : Model) contract initial_price n_simulations n_steps maturity =
     let start_time = Unix.gettimeofday () in

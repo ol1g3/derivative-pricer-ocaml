@@ -27,7 +27,6 @@ module BlackScholes : Model = struct
     if n_simulations <= 0 || n_steps <= 0 then
       failwith "Invalid parameters: all must be positive"
     else
-      Random.init (Int.of_float (Unix.time ()));
       let start_time = Unix.gettimeofday () in
       let results = Array.init n_simulations ~f:(fun _ ->
         let path = generate_path initial_price n_steps in
@@ -44,10 +43,11 @@ module BlackScholes : Model = struct
 end
 
 let () = 
+  Random.init 42;
   let module M = BlackScholes in
   let contract = VanillaContract (100.0, Call) in
-  let analytics = Pricer.price_contract (module M) contract 100.0 10000 100 1.0 in
-  let delta = Pricer.delta (module M) contract 100.0 10000 100 1.0 0.01 in
+  let analytics = Pricer.price_contract (module M) contract 100.0 100000 100 1.0 in
+  let delta = Pricer.delta (module M) contract 100.0 10000 100 1.0 0.1 in
   Stdio.printf "Monte Carlo Price: %f ± %f (95%% CI: [%f, %f])\n" analytics.price (analytics.std_dev /. Float.sqrt (Float.of_int 10000)) (fst analytics.conf_interval) (snd analytics.conf_interval);
   Stdio.printf "Delta: %f\n" delta;
   Stdio.printf "Time Taken: %f seconds\n" analytics.time_taken;
