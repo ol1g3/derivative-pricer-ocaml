@@ -11,7 +11,6 @@ module type Model = sig
   val r : float
   val sigma : float
   val generate_path : float -> int -> float array
-  val path_statistics : float array -> (float * float * float) (* mean, max, min *)
   val run : int -> int -> float -> float -> analytics_result
 end
 
@@ -60,7 +59,7 @@ module Pricer = struct
                        (price +. 1.96 *. std_dev /. Float.sqrt (Float.of_int n_simulations))) in
     { price; std_dev; conf_interval; time_taken = end_time -. start_time }
 
-  let delta (module M : Model) contract initial_price n_simulations n_steps maturity epsilon =  (* Fixed: Make generic *)
+  let delta (module M : Model) contract initial_price n_simulations n_steps maturity epsilon =
     let price_up = price_contract (module M) contract (initial_price +. epsilon) n_simulations n_steps maturity in
     let price_down = price_contract (module M) contract (initial_price -. epsilon) n_simulations n_steps maturity in
     (price_up.price -. price_down.price) /. (2.0 *. epsilon)
